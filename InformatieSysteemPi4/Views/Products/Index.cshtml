@@ -1,0 +1,90 @@
+﻿@model IEnumerable<InformatieSysteemPi4.Models.Product>
+
+@{
+    ViewData["Title"] = "Ons Menu";
+}
+
+<h2>Ons Menu</h2>
+
+<div class="row">
+    @foreach (var product in Model)
+
+    {
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <!-- Product afbeelding -->
+                <img src="@Url.Content(product.ImageURL)" class="card-img-top" alt="@product.Name afbeelding" style="height: 200px; object-fit: cover;" />
+
+                <div class="card-body">
+                    <!-- Productnaam -->
+                    <h5 class="card-title">@product.Name</h5>
+
+                    <!-- Productprijs of actieprijs als er een korting is -->
+                    <p class="card-text">
+                        @if (product.IsOnSale)
+
+                        {
+                            <span class="text-danger"><strong>€ @product.SalePrice.ToString("0.00")</strong></span>
+                            <span class="text-muted"><del>€ @product.Price.ToString("0.00")</del></span>
+                        }
+
+                        else
+
+                        {
+                            <strong>€ @product.Price.ToString("0.00")</strong>
+                        }
+                    </p>
+
+                    <!-- Beschikbaarheid -->
+                    <p class="card-text text-muted">
+                        @if (product.IsAvailable)
+
+                        {
+                            <span>Beschikbaar</span>
+                        }
+
+                        else
+
+                        {
+                            <span>Niet beschikbaar</span>
+                        }
+                    </p>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="#" class="btn btn-primary add-to-cart" data-productid="@product.ProductID" data-quantity="1">Toevoegen aan mandje</a>
+                        <a asp-action="Edit" asp-route-id="@product.ProductID" class="btn btn-secondary">Bewerken</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.add-to-cart').click(function (e) {
+                e.preventDefault(); // Voorkomt dat de pagina herlaadt
+
+                var productId = $(this).data('productid');
+                var quantity = $(this).data('quantity'); // Of gebruik een invoerveld om deze waarde te krijgen
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Cart/AddToCart", // Zorg ervoor dat de URL correct is
+                    contentType: "application/json",
+                    data: JSON.stringify({ ProductID: productId, Quantity: quantity }),
+                    success: function (response) {
+                        // Succes callback: bijvoorbeeld een melding tonen
+                        alert('Product toegevoegd aan het winkelwagentje!');
+                    },
+                    error: function (error) {
+                        // Error callback: bijvoorbeeld een foutmelding tonen
+                        alert('Er is een fout opgetreden bij het toevoegen van het product.');
+                    }
+                });
+            });
+        });
+    </script>
+}    
